@@ -61,7 +61,7 @@ public class UsersController {
         String jwt = jwtUtils.generateJwtToken(authentication, roles);
 
 
-        return ResponseEntity.ok(new AppResponse(new JwtResponse(jwt,
+        return ResponseEntity.ok(new AppResponse<>(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),

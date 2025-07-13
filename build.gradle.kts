@@ -42,6 +42,10 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 }
 
+tasks.withType<JavaCompile> {
+	options.compilerArgs.add("-Xlint:unchecked")
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
