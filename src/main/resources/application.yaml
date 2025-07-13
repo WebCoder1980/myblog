@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  application:
+    name: users
+
+auth:
+  app:
+    jwtSecret: Y294cGxleC1zZWN1cmUtcmFfZG9TLXN0cmluZy1rZXkzMjM0NTY
+    jwtExpirationMs: 1209600000
+
+server:
+  port: 37002
+
+springdoc:
+  api-docs:
+    path: /api-docs
+
+  swagger-ui:
+    path: /swagger-ui-custom.html
+    operationsSorter: method
