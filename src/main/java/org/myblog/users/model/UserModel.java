@@ -24,16 +24,16 @@ public class UserModel {
     private Integer id;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(min = 3, max = 20)
     private String username;
 
     @NotBlank
-    @Size(max = 50)
+    @Size(min = 3, max = 50)
     @Email
     private String email;
 
     @NotBlank
-    @Size(max = 120)
+    @Size(min = 6, max = 100)
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
