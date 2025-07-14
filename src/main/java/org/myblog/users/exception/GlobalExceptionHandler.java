@@ -1,8 +1,7 @@
-package org.myblog.users.service;
+package org.myblog.users.exception;
 
 import org.myblog.users.dto.AppResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
