@@ -1,5 +1,6 @@
 plugins {
 	java
+	jacoco
 	id("org.springframework.boot") version "3.5.3"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -44,6 +45,11 @@ dependencies {
 	implementation("org.apache.logging.log4j:log4j-api:2.25.1")
 }
 
+jacoco {
+	toolVersion = "0.8.13"
+	reportsDirectory = layout.buildDirectory.dir("jacocoReport")
+}
+
 tasks.withType<JavaCompile> {
 	options.compilerArgs.add("-Xlint:unchecked")
 	options.compilerArgs.add("-Xlint:deprecation")
@@ -51,4 +57,8 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
 }
