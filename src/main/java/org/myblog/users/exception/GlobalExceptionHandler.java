@@ -12,7 +12,7 @@ import java.util.TreeSet;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleError(MethodArgumentNotValidException ex) {
+    public ResponseEntity<?> handle(MethodArgumentNotValidException ex) {
         AppResponse<?> result = new AppResponse<>(new TreeMap<>());
 
         ex.getBindingResult()
@@ -25,8 +25,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(result);
     }
 
+    @ExceptionHandler(RestIllegalArgumentException.class)
+    public ResponseEntity<?> handle(RestIllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(new AppResponse<>().addErrorFluent(ex.getField(), ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleError(Exception ex) {
+    public ResponseEntity<?> handle(Exception ex) {
         return ResponseEntity.badRequest().body(new AppResponse<>().addErrorFluent(ex.getMessage()));
     }
 }

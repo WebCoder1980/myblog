@@ -26,12 +26,16 @@ public class AppResponse<T> {
         this.errors = errors;
     }
 
-    public AppResponse<T> addErrorFluent(String error) {
+    public AppResponse<T> addErrorFluent(String message) {
+        return addErrorFluent("general", message);
+    }
+
+    public AppResponse<T> addErrorFluent(String field, String message) {
         if (errors == null) {
             errors = new TreeMap<>();
         }
-        errors.computeIfAbsent("general", i -> new TreeSet<>());
-        errors.get("general").add(error);
+        errors.computeIfAbsent(field, i -> new TreeSet<>());
+        errors.get(field).add(message);
 
         status = AppResponseStatusEnum.ERROR;
 

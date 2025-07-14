@@ -3,6 +3,7 @@ package org.myblog.users.controller;
 import jakarta.validation.Valid;
 import org.myblog.users.dto.request.UserPutRequest;
 import org.myblog.users.appenum.RoleEnum;
+import org.myblog.users.exception.RestIllegalArgumentException;
 import org.myblog.users.model.JwtInfo;
 import org.myblog.users.model.RoleModel;
 import org.myblog.users.model.UserModel;
@@ -86,7 +87,7 @@ public class UsersController {
                 encoder.encode(signUpRequest.getPassword()));
 
         Set<RoleModel> roles = new HashSet<>();
-        roles.add(roleRepository.findByName(RoleEnum.ROLE_USER).orElseThrow(() -> new RuntimeException("Role is not found.")));
+        roles.add(roleRepository.findByName(RoleEnum.ROLE_USER).orElseThrow(() -> new RestIllegalArgumentException("Role is not found.")));
 
         user.setRoles(roles);
         userRepository.save(user);
@@ -103,14 +104,14 @@ public class UsersController {
     @GetMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppResponse<UserModel>> get(@PathVariable Integer id) {
-        return ResponseEntity.ok().body(new AppResponse<UserModel>(userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User was not fount"))));
+        return ResponseEntity.ok().body(new AppResponse<UserModel>(userRepository.findById(id).orElseThrow(() -> new RestIllegalArgumentException("User was not found"))));
     }
 
     @PutMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppResponse<UserModel>> put(@PathVariable Integer id, @Valid @RequestBody UserPutRequest request) {
         UserModel model = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User was not found"));
+                .orElseThrow(() -> new RestIllegalArgumentException("User was not found"));
 
         if (request.getUsername() != null) {
             model.setUsername(request.getUsername());
@@ -128,7 +129,7 @@ public class UsersController {
             model.getRoles().clear();
 
             for (String i : request.getRoles()) {
-                model.getRoles().add(roleRepository.findByName(RoleEnum.valueOf(i)).orElseThrow(() -> new IllegalArgumentException("Role was not found")));
+                model.getRoles().add(roleRepository.findByName(RoleEnum.valueOf(i)).orElseThrow(() -> new RestIllegalArgumentException("Role was not found")));
             }
         }
 
@@ -141,7 +142,7 @@ public class UsersController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppResponse<String>> delete(@PathVariable Integer id) {
         UserModel model = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User was not found"));
+                .orElseThrow(() -> new RestIllegalArgumentException("User was not found"));
 
         userRepository.delete(model);
 
