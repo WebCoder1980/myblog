@@ -3,6 +3,7 @@ package org.myblog.users.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.myblog.users.appenum.RoleEnum;
 
 @Entity
 @Table(name = "roles")
@@ -15,9 +16,9 @@ public class RoleModel {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private ERole name;
+    private RoleEnum name;
 
-    public RoleModel(ERole name) {
+    public RoleModel(RoleEnum name) {
         this.name = name;
     }
 }

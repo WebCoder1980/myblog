@@ -2,7 +2,7 @@ package org.myblog.users.controller;
 
 import jakarta.validation.Valid;
 import org.myblog.users.dto.request.UserPutRequest;
-import org.myblog.users.model.ERole;
+import org.myblog.users.appenum.RoleEnum;
 import org.myblog.users.model.JwtInfo;
 import org.myblog.users.model.RoleModel;
 import org.myblog.users.model.UserModel;
@@ -22,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -87,7 +86,7 @@ public class UsersController {
                 encoder.encode(signUpRequest.getPassword()));
 
         Set<RoleModel> roles = new HashSet<>();
-        roles.add(roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Role is not found.")));
+        roles.add(roleRepository.findByName(RoleEnum.ROLE_USER).orElseThrow(() -> new RuntimeException("Role is not found.")));
 
         user.setRoles(roles);
         userRepository.save(user);
@@ -129,7 +128,7 @@ public class UsersController {
             model.getRoles().clear();
 
             for (String i : request.getRoles()) {
-                model.getRoles().add(roleRepository.findByName(ERole.valueOf(i)).orElseThrow(() -> new IllegalArgumentException("Role was not found")));
+                model.getRoles().add(roleRepository.findByName(RoleEnum.valueOf(i)).orElseThrow(() -> new IllegalArgumentException("Role was not found")));
             }
         }
 

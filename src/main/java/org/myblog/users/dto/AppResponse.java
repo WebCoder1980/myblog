@@ -1,6 +1,7 @@
 package org.myblog.users.dto;
 
 import lombok.Data;
+import org.myblog.users.appenum.AppResponseStatusEnum;
 
 import java.util.Map;
 import java.util.Set;

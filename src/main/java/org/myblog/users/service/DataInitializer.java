@@ -1,7 +1,7 @@
 package org.myblog.users.service;
 
 import jakarta.annotation.PostConstruct;
-import org.myblog.users.model.ERole;
+import org.myblog.users.appenum.RoleEnum;
 import org.myblog.users.model.RoleModel;
 import org.myblog.users.model.UserModel;
 import org.myblog.users.repository.RoleRepository;
@@ -33,14 +33,14 @@ public class DataInitializer {
             admin.setUsername("admin");
             admin.setPassword(encoder.encode("adminPassword"));
             admin.setEmail("admin@myblog.org");
-            admin.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow())));
+            admin.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(RoleEnum.ROLE_ADMIN).orElseThrow())));
             userRepository.save(admin);
 
             UserModel moder = new UserModel();
             moder.setUsername("moderator");
             moder.setPassword(encoder.encode("moderatorPassword"));
             moder.setEmail("moderator@myblog.org");
-            moder.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(ERole.ROLE_MODERATOR).orElseThrow())));
+            moder.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(RoleEnum.ROLE_MODERATOR).orElseThrow())));
 
             userRepository.save(moder);
 
@@ -48,21 +48,21 @@ public class DataInitializer {
             maxsmg.setUsername("maxsmg");
             maxsmg.setPassword(encoder.encode("qweqwe"));
             maxsmg.setEmail("maxsmg@myblog.org");
-            maxsmg.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(ERole.ROLE_USER).orElseThrow())));
+            maxsmg.setRoles(new HashSet<RoleModel>(Arrays.asList(roleRepository.findByName(RoleEnum.ROLE_USER).orElseThrow())));
 
             userRepository.save(maxsmg);
 
 
         }
 
-        if (!roleRepository.existsByName(ERole.ROLE_USER)) {
-            RoleModel userRole = new RoleModel(ERole.ROLE_USER);
+        if (!roleRepository.existsByName(RoleEnum.ROLE_USER)) {
+            RoleModel userRole = new RoleModel(RoleEnum.ROLE_USER);
             roleRepository.save(userRole);
 
-            RoleModel moderatorRole = new RoleModel(ERole.ROLE_MODERATOR);
+            RoleModel moderatorRole = new RoleModel(RoleEnum.ROLE_MODERATOR);
             roleRepository.save(moderatorRole);
 
-            RoleModel adminRole = new RoleModel(ERole.ROLE_ADMIN);
+            RoleModel adminRole = new RoleModel(RoleEnum.ROLE_ADMIN);
             roleRepository.save(adminRole);
         }
     }

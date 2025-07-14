@@ -1,4 +1,4 @@
-package org.myblog.users.dto;
+package org.myblog.users.appenum;
 
 public enum AppResponseStatusEnum {
     OK,
