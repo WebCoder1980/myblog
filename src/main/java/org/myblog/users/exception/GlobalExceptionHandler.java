@@ -27,21 +27,21 @@ public class GlobalExceptionHandler {
                     result.getErrors().get(i.getField()).add(i.getDefaultMessage());
                 });
 
-        logger.error(String.format("Bad request: %s", result.toString()));
+        logger.warn(String.format("Bad request: %s", result.toString()));
 
         return ResponseEntity.badRequest().body(result);
     }
 
     @ExceptionHandler(RestIllegalArgumentException.class)
     public ResponseEntity<?> handle(RestIllegalArgumentException ex) {
-        logger.error(String.format("Bad request: %s - %s", ex.getField(), ex.getMessage()));
+        logger.warn(String.format("Bad request: %s - %s", ex.getField(), ex.getMessage()));
 
         return ResponseEntity.badRequest().body(new AppResponse<>().addErrorFluent(ex.getField(), ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handle(Exception ex) {
-        logger.error(String.format("Bad request: %s", ex.getMessage()));
+        logger.warn(String.format("Bad request: %s", ex.getMessage()));
 
         return ResponseEntity.badRequest().body(new AppResponse<>().addErrorFluent(ex.getMessage()));
     }
