@@ -40,10 +40,13 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+	implementation("org.apache.logging.log4j:log4j-core:2.25.1")
+	implementation("org.apache.logging.log4j:log4j-api:2.25.1")
 }
 
 tasks.withType<JavaCompile> {
 	options.compilerArgs.add("-Xlint:unchecked")
+	options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.withType<Test> {

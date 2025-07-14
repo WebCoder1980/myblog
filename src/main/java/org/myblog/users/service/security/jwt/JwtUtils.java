@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.apache.logging.log4j.Logger;
 import org.myblog.users.model.JwtInfo;
 import org.myblog.users.model.JwtUserInfo;
 import org.myblog.users.service.security.UserDetailsImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -20,13 +19,11 @@ import java.util.List;
 
 @Component
 public class JwtUtils {
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private Logger logger;
 
     @Autowired
-    public JwtUtils(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    private ObjectMapper objectMapper;
 
     @Value("${auth.app.jwtSecret}")
     private String jwtSecret;
