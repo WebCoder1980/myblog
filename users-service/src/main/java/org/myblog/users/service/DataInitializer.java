@@ -28,6 +28,17 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
+        if (!roleRepository.existsByName(RoleEnum.ROLE_USER)) {
+            RoleModel userRole = new RoleModel(RoleEnum.ROLE_USER);
+            roleRepository.save(userRole);
+
+            RoleModel moderatorRole = new RoleModel(RoleEnum.ROLE_MODERATOR);
+            roleRepository.save(moderatorRole);
+
+            RoleModel adminRole = new RoleModel(RoleEnum.ROLE_ADMIN);
+            roleRepository.save(adminRole);
+        }
+
         if (!userRepository.existsByUsername("admin")) {
             UserModel admin = new UserModel();
             admin.setUsername("admin");
@@ -53,17 +64,6 @@ public class DataInitializer {
             userRepository.save(maxsmg);
 
 
-        }
-
-        if (!roleRepository.existsByName(RoleEnum.ROLE_USER)) {
-            RoleModel userRole = new RoleModel(RoleEnum.ROLE_USER);
-            roleRepository.save(userRole);
-
-            RoleModel moderatorRole = new RoleModel(RoleEnum.ROLE_MODERATOR);
-            roleRepository.save(moderatorRole);
-
-            RoleModel adminRole = new RoleModel(RoleEnum.ROLE_ADMIN);
-            roleRepository.save(adminRole);
         }
     }
 }
