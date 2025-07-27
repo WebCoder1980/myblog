@@ -1,3 +1,3 @@
-rootProject.name = "users"
+rootProject.name = "myblog"
 
 include(":users-service")
