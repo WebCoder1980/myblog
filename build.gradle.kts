@@ -30,21 +30,28 @@ configure(javaProjects) {
     }
 
     dependencies {
-        "implementation"("org.springframework.boot:spring-boot-starter-data-jpa")
-        "implementation"("org.springframework.boot:spring-boot-starter-security")
-        "implementation"("org.springframework.boot:spring-boot-starter-web")
-        "compileOnly"("org.projectlombok:lombok")
-        "runtimeOnly"("org.postgresql:postgresql")
-        "annotationProcessor"("org.projectlombok:lombok")
-        "testImplementation"("org.springframework.boot:spring-boot-starter-test")
-        "testImplementation"("org.springframework.security:spring-security-test")
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+        "implementation"("org.springframework.boot:spring-boot-starter-data-jpa:3.5.4")
+        "implementation"("org.springframework.boot:spring-boot-starter-security:3.5.4")
+        "implementation"("org.springframework.boot:spring-boot-starter-web:3.5.4")
+        "testImplementation"("org.springframework.boot:spring-boot-starter-test:3.5.4")
+        "testImplementation"("org.springframework.security:spring-security-test:6.5.2")
+
+        "runtimeOnly"("org.postgresql:postgresql:42.7.7")
+
+        "compileOnly"("org.projectlombok:lombok:1.18.38")
+        "annotationProcessor"("org.projectlombok:lombok:1.18.38")
+
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:1.13.4")
+
         "implementation"("jakarta.validation:jakarta.validation-api:3.0.2")
-        "implementation"("org.hibernate.validator:hibernate-validator")
+        "implementation"("org.hibernate.validator:hibernate-validator:9.0.1.Final")
+
         "implementation"("io.jsonwebtoken:jjwt-api:0.11.5")
         "runtimeOnly"("io.jsonwebtoken:jjwt-impl:0.11.5")
         "runtimeOnly"("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
         "implementation"("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+
         "implementation"("org.apache.logging.log4j:log4j-core:2.25.1")
         "implementation"("org.apache.logging.log4j:log4j-api:2.25.1")
     }
