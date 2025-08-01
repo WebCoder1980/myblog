@@ -41,7 +41,7 @@ configure(javaProjects) {
         "compileOnly"("org.projectlombok:lombok:1.18.38")
         "annotationProcessor"("org.projectlombok:lombok:1.18.38")
 
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:1.13.4")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-commons:1.13.4")
 
         "implementation"("jakarta.validation:jakarta.validation-api:3.0.2")
         "implementation"("org.hibernate.validator:hibernate-validator:9.0.1.Final")
