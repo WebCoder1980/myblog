@@ -1,4 +1,4 @@
-package org.myblog.users;
+package org.myblog.users.unit;
 
 import org.junit.jupiter.api.Test;
 

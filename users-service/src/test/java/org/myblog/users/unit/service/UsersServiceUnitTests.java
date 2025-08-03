@@ -1,4 +1,4 @@
-package org.myblog.users.service;
+package org.myblog.users.unit.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +19,7 @@ import org.myblog.users.model.RoleModel;
 import org.myblog.users.model.UserModel;
 import org.myblog.users.repository.RoleRepository;
 import org.myblog.users.repository.UserRepository;
+import org.myblog.users.service.UsersService;
 import org.myblog.users.service.security.UserDetailsImpl;
 import org.myblog.users.service.security.jwt.JwtUtils;
 import org.springframework.security.authentication.AuthenticationManager;
