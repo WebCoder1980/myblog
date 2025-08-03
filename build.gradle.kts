@@ -43,6 +43,11 @@ configure(javaProjects) {
 
         "testRuntimeOnly"("org.junit.platform:junit-platform-commons:1.13.4")
 
+        "testImplementation"("org.testcontainers:testcontainers:1.21.3")
+        "testImplementation"("org.testcontainers:postgresql:1.21.3")
+
+        "testImplementation"("io.rest-assured:rest-assured:5.5.5")
+
         "implementation"("jakarta.validation:jakarta.validation-api:3.0.2")
         "implementation"("org.hibernate.validator:hibernate-validator:9.0.1.Final")
 
