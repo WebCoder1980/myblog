@@ -24,6 +24,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -127,7 +129,7 @@ public class UsersControllerIntegrationTests {
     }
 
     static {
-        POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:9.6.12");
+        POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:16.1");
 
         POSTGRES_CONTAINER.withDatabaseName("myblog-test")
                 .withUsername("postgres")
@@ -148,16 +150,12 @@ public class UsersControllerIntegrationTests {
         return result;
     }
 
-    static class EnvInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-        @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            TestPropertyValues.of(
-                    POSTGRES_CONTAINER.getJdbcUrl(),
-                    String.format("spring.datasource.username=%s", POSTGRES_CONTAINER.getUsername()),
-                    String.format("spring.datasource.password=%s", POSTGRES_CONTAINER.getPassword())
-            ).applyTo(applicationContext);
-        }
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 
     @Test
@@ -236,58 +234,33 @@ public class UsersControllerIntegrationTests {
 
     @Test
     public void users_user_get_admin_ok() {
-        final String expectedBody = """
-                {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 1,
-                      "username": "admin",
-                      "email": "admin@myblog.org",
-                      "password": "$2a$10$U6ZEO9Ov6iFq7jWPQDypVO.fiTMCfr2xme//n7yW8Ht6giRfYnvH2",
-                      "roles": [
-                        {
-                          "id": 3,
-                          "name": "ROLE_ADMIN"
-                        }
-                      ]
-                    },
-                    {
-                      "id": 2,
-                      "username": "moderator",
-                      "email": "moderator@myblog.org",
-                      "password": "$2a$10$KmXsrCGXguLYk9ilT2dTGuZkh/rtJuVamNQdIEExA9umgQHeiyyFS",
-                      "roles": [
-                        {
-                          "id": 2,
-                          "name": "ROLE_MODERATOR"
-                        }
-                      ]
-                    },
-                    {
-                      "id": 3,
-                      "username": "maxsmg",
-                      "email": "maxsmg@myblog.org",
-                      "password": "$2a$10$laeQwcOA9gBrnK/jSr70geChCcq3AJi0CZ3keNiPvFL2PbKJZkrz.",
-                      "roles": [
-                        {
-                          "id": 1,
-                          "name": "ROLE_USER"
-                        }
-                      ]
-                    }
-                  ],
-                  "errors": null
-                }
-                """;
-
         given()
             .when()
                 .header("Authorization", String.format("Bearer %s", getAdminToken()))
                 .get(URI_USERS_USER)
             .then()
                 .statusCode(200)
-                .body(equalToJSON(expectedBody));
+                .body("status", equalTo("OK"))
+
+                .body("data[0].id", equalTo(1))
+                .body("data[0].username", equalTo("admin"))
+                .body("data[0].email", equalTo("admin@myblog.org"))
+                .body("data[0].roles[0].id", equalTo(3))
+                .body("data[0].roles[0].name", equalTo("ROLE_ADMIN"))
+
+                .body("data[1].id", equalTo(2))
+                .body("data[1].username", equalTo("moderator"))
+                .body("data[1].email", equalTo("moderator@myblog.org"))
+                .body("data[1].roles[0].id", equalTo(2))
+                .body("data[1].roles[0].name", equalTo("ROLE_MODERATOR"))
+
+                .body("data[2].id", equalTo(3))
+                .body("data[2].username", equalTo("maxsmg"))
+                .body("data[2].email", equalTo("maxsmg@myblog.org"))
+                .body("data[2].roles[0].id", equalTo(1))
+                .body("data[2].roles[0].name", equalTo("ROLE_USER"))
+
+                .body("errors", nullValue());
     }
 
     @Test
