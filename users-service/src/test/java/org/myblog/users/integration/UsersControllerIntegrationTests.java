@@ -164,7 +164,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_auth_login_post_ok() {
+    public void post_authenticateUser_ok() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(USER_LOGIN);
         loginRequest.setPassword(USER_PASSWORD);
@@ -186,7 +186,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_auth_login_post_wrongLoginOrPassword() {
+    public void post_authenticateUser_wrongLoginOrPassword() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("wrong");
         loginRequest.setPassword("wrong");
@@ -203,7 +203,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_auth_login_post_emptyLoginAndPassword() {
+    public void post_authenticateUser_emptyLoginAndPassword() {
         final String expectedBody = """
                 {
                   "status": "ERROR",
@@ -233,7 +233,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_user_get_admin_ok() {
+    public void get_getAll_admin_ok() {
         given()
             .when()
                 .header("Authorization", String.format("Bearer %s", getAdminToken()))
@@ -264,7 +264,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_user_get_moderator_ok() {
+    public void get_getAll_moderator_ok() {
         final String expectedBody = """
                   {
                     "status": "ERROR",
@@ -287,7 +287,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_user_get_user_ok() {
+    public void get_getAll_user_ok() {
         final String expectedBody = """
                 {
                    "status": "ERROR",
@@ -310,7 +310,7 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void users_user_get_guest_ok() {
+    public void get_getAll_guest_ok() {
         final String expectedBody = """
                 {
                   "status": "ERROR",
