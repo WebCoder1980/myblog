@@ -52,6 +52,7 @@ public class UsersControllerIntegrationTests {
     
     final String URI_USERS_AUTH_LOGIN = "/users/auth/login";
     final String URI_USERS_USER = "/users/user";
+    final String URI_USERS_USER_ID = "/users/user/{id}";
 
     @Value("${APP_PORT}")
     private Integer APP_PORT;
@@ -328,5 +329,121 @@ public class UsersControllerIntegrationTests {
                 .body("data[2].roles[0].name", equalTo("ROLE_USER"))
 
                 .body("errors", nullValue());
+    }
+
+    @Test
+    public void get_get_guest_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Full authentication is required to access this resource"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .pathParam("id", 1)
+                .when()
+                .get(URI_USERS_USER_ID)
+                .then()
+                .statusCode(401)
+                .body(equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void get_get_user_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getUserToken()))
+                .pathParam("id", 1)
+                .when()
+                .get(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void get_get_moderator_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getModeratorToken()))
+                .pathParam("id", 1)
+                .when()
+                .get(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void get_get_admin_ok() {
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 1)
+                .when()
+                .get(URI_USERS_USER_ID)
+                .then()
+                .statusCode(200)
+
+                .body("status", equalTo("OK"))
+
+                .body("data.id", equalTo(1))
+                .body("data.username", equalTo("admin"))
+                .body("data.email", equalTo("admin@myblog.org"))
+                .body("data.roles[0].id", equalTo(3))
+                .body("data.roles[0].name", equalTo("ROLE_ADMIN"))
+
+                .body("errors", nullValue());
+    }
+
+    @Test
+    public void get_get_admin_userWasNotFound() {
+        final String expectedBody = """
+                {
+                   "status": "ERROR",
+                   "data": null,
+                   "errors": {
+                     "general": [
+                       "User was not found"
+                     ]
+                   }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 999)
+                .when()
+                .get(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(equalToJSON(expectedBody));
     }
 }
