@@ -441,45 +441,4 @@ public class UsersServiceUnitTests {
         verify(userRepository).findById(id);
         verify(userRepository, never()).delete(any(UserModel.class));
     }
-
-    @Test
-    public void decodeToken_Ok() {
-        // Arrange
-
-        JwtInfo expected = new JwtInfo();
-        expected.setExpiration(new Date(LocalDate.now().getYear()));
-        expected.setUserInfo(new JwtUserInfo());
-        expected.getUserInfo().setId(1);
-
-        String token = "encrypted";
-
-        when(jwtUtils.getUserDataFromJwtToken(any(String.class))).thenReturn(expected);
-
-        // Act
-
-        JwtInfo actual = usersService.decodeToken(token);
-
-        // Assert
-
-        assertEquals(expected, actual);
-
-        verify(jwtUtils).getUserDataFromJwtToken(any(String.class));
-    }
-
-    @Test
-    public void decodeToken_BrokenToken() {
-        // Arrange
-
-        String token = "encrypted";
-
-        when(jwtUtils.getUserDataFromJwtToken(any(String.class))).thenThrow(new RuntimeException());
-
-        // Act && Assure
-
-        assertThrows(RuntimeException.class, () -> usersService.decodeToken(token));
-
-        // Assert
-
-        verify(jwtUtils).getUserDataFromJwtToken(any(String.class));
-    }
 }

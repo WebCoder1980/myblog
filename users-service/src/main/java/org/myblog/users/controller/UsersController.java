@@ -66,9 +66,4 @@ public class UsersController {
 
         return ResponseEntity.ok().body(new AppResponse<>("Deleted"));
     }
-
-    @GetMapping("/token/decode")
-    public ResponseEntity<AppResponse<JwtInfo>> decodeToken(@RequestParam("token") String token) {
-        return ResponseEntity.ok().body(new AppResponse<>(usersService.decodeToken(token)));
-    }
 }
