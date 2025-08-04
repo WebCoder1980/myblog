@@ -43,7 +43,6 @@ import static org.hamcrest.Matchers.*;
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class UsersControllerIntegrationTests {
-    private static final Logger log = LoggerFactory.getLogger(UsersControllerIntegrationTests.class);
     final String USER_LOGIN = "maxsmg";
     final String USER_PASSWORD = "qweqwe";
     final String MODERATOR_LOGIN = "moderator";
@@ -233,34 +232,48 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void get_getAll_admin_ok() {
+    public void get_getAll_guest_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Full authentication is required to access this resource"
+                    ]
+                  }
+                }
+                """;
+
         given()
-            .when()
-                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .when()
                 .get(URI_USERS_USER)
-            .then()
-                .statusCode(200)
-                .body("status", equalTo("OK"))
+                .then()
+                .statusCode(401)
+                .body(equalToJSON(expectedBody));
+    }
 
-                .body("data[0].id", equalTo(1))
-                .body("data[0].username", equalTo("admin"))
-                .body("data[0].email", equalTo("admin@myblog.org"))
-                .body("data[0].roles[0].id", equalTo(3))
-                .body("data[0].roles[0].name", equalTo("ROLE_ADMIN"))
+    @Test
+    public void get_getAll_user_ok() {
+        final String expectedBody = """
+                {
+                   "status": "ERROR",
+                   "data": null,
+                   "errors": {
+                     "general": [
+                       "Access Denied"
+                     ]
+                   }
+                 }
+                """;
 
-                .body("data[1].id", equalTo(2))
-                .body("data[1].username", equalTo("moderator"))
-                .body("data[1].email", equalTo("moderator@myblog.org"))
-                .body("data[1].roles[0].id", equalTo(2))
-                .body("data[1].roles[0].name", equalTo("ROLE_MODERATOR"))
-
-                .body("data[2].id", equalTo(3))
-                .body("data[2].username", equalTo("maxsmg"))
-                .body("data[2].email", equalTo("maxsmg@myblog.org"))
-                .body("data[2].roles[0].id", equalTo(1))
-                .body("data[2].roles[0].name", equalTo("ROLE_USER"))
-
-                .body("errors", nullValue());
+        given()
+                .when()
+                .header("Authorization", String.format("Bearer %s", getUserToken()))
+                .get(URI_USERS_USER)
+                .then()
+                .statusCode(400)
+                .body(equalToJSON(expectedBody));
     }
 
     @Test
@@ -287,49 +300,33 @@ public class UsersControllerIntegrationTests {
     }
 
     @Test
-    public void get_getAll_user_ok() {
-        final String expectedBody = """
-                {
-                   "status": "ERROR",
-                   "data": null,
-                   "errors": {
-                     "general": [
-                       "Access Denied"
-                     ]
-                   }
-                 }
-                """;
-
+    public void get_getAll_admin_ok() {
         given()
-            .when()
-                .header("Authorization", String.format("Bearer %s", getUserToken()))
+                .when()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
                 .get(URI_USERS_USER)
-            .then()
-                .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .then()
+                .statusCode(200)
+                .body("status", equalTo("OK"))
+
+                .body("data[0].id", equalTo(1))
+                .body("data[0].username", equalTo("admin"))
+                .body("data[0].email", equalTo("admin@myblog.org"))
+                .body("data[0].roles[0].id", equalTo(3))
+                .body("data[0].roles[0].name", equalTo("ROLE_ADMIN"))
+
+                .body("data[1].id", equalTo(2))
+                .body("data[1].username", equalTo("moderator"))
+                .body("data[1].email", equalTo("moderator@myblog.org"))
+                .body("data[1].roles[0].id", equalTo(2))
+                .body("data[1].roles[0].name", equalTo("ROLE_MODERATOR"))
+
+                .body("data[2].id", equalTo(3))
+                .body("data[2].username", equalTo("maxsmg"))
+                .body("data[2].email", equalTo("maxsmg@myblog.org"))
+                .body("data[2].roles[0].id", equalTo(1))
+                .body("data[2].roles[0].name", equalTo("ROLE_USER"))
+
+                .body("errors", nullValue());
     }
-
-    @Test
-    public void get_getAll_guest_ok() {
-        final String expectedBody = """
-                {
-                  "status": "ERROR",
-                  "data": null,
-                  "errors": {
-                    "general": [
-                      "Full authentication is required to access this resource"
-                    ]
-                  }
-                }
-                """;
-
-        given()
-            .when()
-                .get(URI_USERS_USER)
-            .then()
-                .statusCode(401)
-                .body(equalToJSON(expectedBody));
-    }
-
-
 }
