@@ -56,7 +56,7 @@ public class UsersControllerIntegrationTests {
     final String URI_USERS_USER = "/users/user";
     final String URI_USERS_USER_ID = "/users/user/{id}";
 
-    @Value("${APP_PORT}")
+    @Value("${TEST_PORT}")
     private Integer APP_PORT;
 
     @Autowired

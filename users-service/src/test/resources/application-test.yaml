@@ -1,2 +1,2 @@
 server:
-  port: 37032
+  port: ${TEST_PORT}
