@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.myblog.users.dto.AppResponse;
 import org.myblog.users.dto.request.LoginRequest;
+import org.myblog.users.dto.request.SignupRequest;
 import org.myblog.users.dto.response.JwtResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ public class UsersControllerIntegrationTests {
     final String ADMIN_PASSWORD = "adminPassword";
     
     final String URI_USERS_AUTH_LOGIN = "/users/auth/login";
+    final String URI_USERS_AUTH_REGISTER = "/users/auth/register";
     final String URI_USERS_USER = "/users/user";
     final String URI_USERS_USER_ID = "/users/user/{id}";
 
@@ -230,6 +232,67 @@ public class UsersControllerIntegrationTests {
             .when()
                 .post(URI_USERS_AUTH_LOGIN)
             .then()
+                .statusCode(400)
+                .body(equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void post_registerUser_ok() {
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setUsername("testUser");
+        signupRequest.setEmail("testUserEmail@gmail.org");
+        signupRequest.setPassword("testUserPassword");
+
+        given()
+                .body(signupRequest)
+                .when()
+                .post(URI_USERS_AUTH_REGISTER)
+                .then()
+                .statusCode(200)
+
+                .body("status", equalTo("OK"))
+                .body("data.id", equalTo(4))
+                .body("data.username", equalTo("testUser"))
+                .body("data.email", equalTo("testUserEmail@gmail.org"))
+
+                .body("data.roles[0].id", equalTo(1))
+                .body("data.roles[0].name", equalTo("ROLE_USER"))
+
+                .body("errors", nullValue());
+    }
+
+    @Test
+    public void post_registerUser_emptyData() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "email": [
+                      "must not be blank"
+                    ],
+                    "password": [
+                      "must not be blank",
+                      "size must be between 6 and 40"
+                    ],
+                    "username": [
+                      "must not be blank",
+                      "size must be between 3 and 20"
+                    ]
+                  }
+                }
+                """;
+
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setUsername("");
+        signupRequest.setEmail("");
+        signupRequest.setPassword("");
+
+        given()
+                .body(signupRequest)
+                .when()
+                .post(URI_USERS_AUTH_REGISTER)
+                .then()
                 .statusCode(400)
                 .body(equalToJSON(expectedBody));
     }
