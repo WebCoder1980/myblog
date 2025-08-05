@@ -481,4 +481,119 @@ public class UsersControllerIntegrationTests {
                 .statusCode(400)
                 .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
+
+    @Test
+    public void delete_delete_guest_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Full authentication is required to access this resource"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .pathParam("id", 3)
+                .when()
+                .delete(URI_USERS_USER_ID)
+                .then()
+                .statusCode(401)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void delete_delete_user_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getUserToken()))
+                .pathParam("id", 3)
+                .when()
+                .delete(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void delete_delete_moderator_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getModeratorToken()))
+                .pathParam("id", 3)
+                .when()
+                .delete(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void delete_delete_admin_ok() {
+        final String expectedBody = """
+                {
+                  "status": "OK",
+                  "data": "Deleted",
+                  "errors": null
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 3)
+                .when()
+                .delete(URI_USERS_USER_ID)
+                .then()
+                .statusCode(200)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void delete_delete_admin_userWasNotFound() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "User was not found"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 999)
+                .when()
+                .delete(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
 }
