@@ -8,13 +8,11 @@ import io.restassured.http.ContentType;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.myblog.users.dto.AppResponse;
 import org.myblog.users.dto.request.LoginRequest;
 import org.myblog.users.dto.request.SignupRequest;
 import org.myblog.users.dto.response.JwtResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.myblog.users.unit.service.PostgresTestContainerInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,8 +24,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -44,7 +41,7 @@ import static org.hamcrest.Matchers.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @Testcontainers
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@ContextConfiguration(initializers = PostgresTestContainerInitializer.class)
 public class UsersControllerIntegrationTests {
     final String USER_LOGIN = "maxsmg";
     final String USER_PASSWORD = "qweqwe";
@@ -52,7 +49,7 @@ public class UsersControllerIntegrationTests {
     final String MODERATOR_PASSWORD = "moderatorPassword";
     final String ADMIN_LOGIN = "admin";
     final String ADMIN_PASSWORD = "adminPassword";
-    
+
     final String URI_USERS_AUTH_LOGIN = "/users/auth/login";
     final String URI_USERS_AUTH_REGISTER = "/users/auth/register";
     final String URI_USERS_USER = "/users/user";
@@ -62,16 +59,19 @@ public class UsersControllerIntegrationTests {
     private Integer APP_PORT;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private IntegrationTestsUtil integrationTestsUtil;
 
     @Autowired
     private RestTemplate restTemplate;
 
     @Container
-    private static PostgreSQLContainer POSTGRES_CONTAINER;
+    private final PostgreSQLContainer<?> POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:16.1")
+            .withDatabaseName("myblog-test")
+            .withUsername("postgres")
+            .withPassword("postgres");
 
     @BeforeEach
-    public void restAssuredPortSet() {
+    public void restAssuredInit() {
         RestAssured.port = APP_PORT;
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
@@ -130,36 +130,6 @@ public class UsersControllerIntegrationTests {
         );
 
         return response.getBody().getData().getToken();
-    }
-
-    static {
-        POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:16.1");
-
-        POSTGRES_CONTAINER.withDatabaseName("myblog-test")
-                .withUsername("postgres")
-                .withPassword("postgres");
-
-        POSTGRES_CONTAINER.start();
-    }
-
-    private Matcher<String> equalToJSON(String json) {
-        Matcher<String> result;
-        try {
-            JsonNode node = objectMapper.readTree(json);
-            result = equalTo(objectMapper.writeValueAsString(node));
-        } catch (IOException ex) {
-            throw new RuntimeException("JSON is broken");
-        }
-
-        return result;
-    }
-
-    @DynamicPropertySource
-    static void postgresProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 
     @Test
@@ -233,7 +203,7 @@ public class UsersControllerIntegrationTests {
                 .post(URI_USERS_AUTH_LOGIN)
             .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -294,7 +264,7 @@ public class UsersControllerIntegrationTests {
                 .post(URI_USERS_AUTH_REGISTER)
                 .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -316,7 +286,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER)
                 .then()
                 .statusCode(401)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -339,7 +309,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER)
                 .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -362,7 +332,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER)
             .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -416,7 +386,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER_ID)
                 .then()
                 .statusCode(401)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -440,7 +410,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER_ID)
                 .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -464,7 +434,7 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER_ID)
                 .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 
     @Test
@@ -509,6 +479,6 @@ public class UsersControllerIntegrationTests {
                 .get(URI_USERS_USER_ID)
                 .then()
                 .statusCode(400)
-                .body(equalToJSON(expectedBody));
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
     }
 }
