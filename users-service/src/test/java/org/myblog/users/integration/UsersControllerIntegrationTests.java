@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.myblog.users.dto.AppResponse;
 import org.myblog.users.dto.request.LoginRequest;
 import org.myblog.users.dto.request.SignupRequest;
+import org.myblog.users.dto.request.UserPutRequest;
 import org.myblog.users.dto.response.JwtResponse;
 import org.myblog.users.unit.service.PostgresTestContainerInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +33,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,6 +45,7 @@ import static org.hamcrest.Matchers.*;
 @ActiveProfiles("test")
 @Testcontainers
 @ContextConfiguration(initializers = PostgresTestContainerInitializer.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UsersControllerIntegrationTests {
     final String USER_LOGIN = "maxsmg";
     final String USER_PASSWORD = "qweqwe";
@@ -480,6 +484,200 @@ public class UsersControllerIntegrationTests {
                 .then()
                 .statusCode(400)
                 .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void put_put_guest_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Full authentication is required to access this resource"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .pathParam("id", 3)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(401)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void put_put_user_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getUserToken()))
+                .body(new UserPutRequest())
+                .pathParam("id", 3)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void put_put_moderator_ok() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "Access Denied"
+                    ]
+                  }
+                }
+                """;
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getModeratorToken()))
+                .body(new UserPutRequest())
+                .pathParam("id", 3)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+    }
+
+    @Test
+    public void put_put_admin_ok_emptyRequest() {
+        UserPutRequest userPutRequest = new UserPutRequest();
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 3)
+                .body(userPutRequest)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(200)
+
+                .body("status", equalTo("OK"))
+
+                .body("data.id", equalTo(3))
+                .body("data.username", equalTo("maxsmg"))
+                .body("data.email", equalTo("maxsmg@myblog.org"))
+                .body("data.roles[0].id", equalTo(1))
+                .body("data.roles[0].name", equalTo("ROLE_USER"))
+
+                .body("errors", nullValue());
+
+    }
+
+    @Test
+    public void put_put_admin_ok_allProperties() {
+        UserPutRequest userPutRequest = new UserPutRequest();
+        userPutRequest.setUsername("newUsername");
+        userPutRequest.setEmail("newEmail@myblog.org");
+        userPutRequest.setPassword("newPassword");
+        userPutRequest.setRoles(Set.of("ROLE_MODERATOR"));
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 3)
+                .body(userPutRequest)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(200)
+
+                .body("status", equalTo("OK"))
+
+                .body("data.id", equalTo(3))
+                .body("data.username", equalTo("newUsername"))
+                .body("data.email", equalTo("newEmail@myblog.org"))
+                .body("data.roles[0].id", equalTo(2))
+                .body("data.roles[0].name", equalTo("ROLE_MODERATOR"))
+
+                .body("errors", nullValue());
+
+    }
+
+    @Test
+    public void put_put_admin_ok_toShortRequestProperties() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "email": [
+                      "size must be between 3 and 50"
+                    ],
+                    "username": [
+                      "size must be between 3 and 20"
+                    ]
+                  }
+                }
+                """;
+
+        UserPutRequest userPutRequest = new UserPutRequest();
+        userPutRequest.setUsername("");
+        userPutRequest.setEmail("");
+        userPutRequest.setPassword("");
+        userPutRequest.setRoles(Set.of(""));
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 3)
+                .body(userPutRequest)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+
+    }
+
+    @Test
+    public void put_put_admin_ok_unknownRequestRoles() {
+        final String expectedBody = """
+                {
+                  "status": "ERROR",
+                  "data": null,
+                  "errors": {
+                    "general": [
+                      "No enum constant org.myblog.users.appenum.RoleEnum."
+                    ]
+                  }
+                }
+                """;
+
+        UserPutRequest userPutRequest = new UserPutRequest();
+        userPutRequest.setUsername("newUsername");
+        userPutRequest.setEmail("newEmail@myblog.org");
+        userPutRequest.setPassword("newPassword");
+        userPutRequest.setRoles(Set.of(""));
+
+        given()
+                .header("Authorization", String.format("Bearer %s", getAdminToken()))
+                .pathParam("id", 3)
+                .body(userPutRequest)
+                .when()
+                .put(URI_USERS_USER_ID)
+                .then()
+                .statusCode(400)
+                .body(integrationTestsUtil.equalToJSON(expectedBody));
+
     }
 
     @Test
