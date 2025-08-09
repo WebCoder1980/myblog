@@ -2,23 +2,24 @@
 
 | Service                                         | Port  |
 |-------------------------------------------------|-------|
-| Frontend (reserved)                             | 37000 |
-| Gateway API (reserved)                          | 37001 |
-| Kafka LISTENERS AND KAFKA_LISTENERS (PLAINTEXT) | 9092  |
-| Users service (REST API)                        | 37002 |
-| Users service (Testing, REST API)               | 37032 |
-| Users DB (Postgres)                             | 37012 |
+| Frontend (reserved)                             | 37001 |
+| Gateway API (reserved)                          | 37002 |
+| Kafka LISTENERS AND KAFKA_LISTENERS (PLAINTEXT) | 37003 |
+| Kafka GUI                                       | 37004 |
+| Users service (REST API)                        | 37011 |
+| Users service (Testing, REST API)               | 37012 |
+| Users DB (Postgres)                             | 37013 |
 
 # Environment variables
 
 ## For :bootRun
 
 ```
-POSTGRES_LOGIN=postgres;POSTGRES_HOST=localhost;POSTGRES_PASSWORD=postgres;POSTGRES_PORT=37012;POSTGRES_DB=myblog;APP_PORT=37002
+POSTGRES_LOGIN=postgres;POSTGRES_HOST=localhost;POSTGRES_PASSWORD=postgres;POSTGRES_PORT=37013;POSTGRES_DB=myblog;APP_PORT=37011
 ```
 
 ## For :test
 
 ```
-TEST_PORT=37032
+TEST_PORT=37012
 ```
