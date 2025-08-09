@@ -1,4 +1,4 @@
-# Ports (with example enviroment varibles)
+# Ports (with example environment variables)
 
 | Service                                         | Port  |
 |-------------------------------------------------|-------|
