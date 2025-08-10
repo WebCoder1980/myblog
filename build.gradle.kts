@@ -35,7 +35,9 @@ configure(javaProjects) {
         "implementation"("org.springframework.boot:spring-boot-starter-web:3.5.4")
         "testImplementation"("org.springframework.boot:spring-boot-starter-test:3.5.4")
         "testImplementation"("org.springframework.security:spring-security-test:6.5.2")
+        "testImplementation"("org.springframework.kafka:spring-kafka-test:3.3.8")
         "testImplementation"("org.springframework.boot:spring-boot-testcontainers:3.5.4")
+        "implementation"("org.springframework.kafka:spring-kafka:3.3.8")
 
         "runtimeOnly"("org.postgresql:postgresql:42.7.7")
 
@@ -46,6 +48,7 @@ configure(javaProjects) {
 
         "testImplementation"("org.testcontainers:testcontainers:1.21.3")
         "testImplementation"("org.testcontainers:postgresql:1.21.3")
+        "testImplementation"("org.testcontainers:kafka:1.21.3")
         "testImplementation"("org.testcontainers:junit-jupiter:1.21.3")
 
         "testImplementation"("io.rest-assured:rest-assured:5.5.5")
